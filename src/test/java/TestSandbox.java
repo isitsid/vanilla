@@ -1,18 +1,17 @@
 import amazon.config.EnvFactory;
+import amazon.pages.BurgerMenu;
+import amazon.pages.FilterOptions;
+import amazon.pages.Homepage;
 import amazon.factories.DriverFactory;
+import amazon.pages.ProductDetail;
+import amazon.pages.SearchResults;
 import com.typesafe.config.Config;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.junit.jupiter.api.AfterAll;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -27,52 +26,48 @@ public class TestSandbox {
     @Test
     void assertThatHomePageTitleIsCorrect() {
         driver.get(HOME_PAGE_URL);
-        assertEquals("Amazon.com. Spend less. Smile more.", driver.getTitle());
+        assertEquals("Online Shopping site   in India: Shop Online for Mobiles, Books, Watches, Shoes and More - Amazon.in", driver.getTitle());
     }
     @Test
-    void test_television_about_product(){
+    void navigateToHamburger(){
+
+        // Step 1. Open https://www.amazon.in/.
         driver.get(HOME_PAGE_URL);
-        WebElement hamburgerButton = getElement("//*[@id=\"nav-hamburger-menu\"]");
-        hamburgerButton.click();
-        WebElement tvSubsectionButton = driver.findElement(By.xpath("//*[@id=\"hmenu-content\"]/ul[1]/li[16]/a/div"));
-        tvSubsectionButton.click();
-        WebElement televisionButton = driver.findElement(By.xpath("//a[contains(text(),'Televisions')]"));
-        televisionButton.click();
-        
-        WebDriverWait wait = new WebDriverWait(driver, 5);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*/text()[normalize-space(.)='Samsung']/parent::*")));
 
-        WebElement samsungElement = driver.findElement(By.xpath("//*/text()[normalize-space(.)='Samsung']/parent::*"));
-        samsungElement.click();
+        // Step 2. Click on the hamburger menu in the top left corner.
+        Homepage homePage = new Homepage(driver);
+        homePage.clickOnHamburgerButton();
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"a-autoid-0-announce\"]/span[1]")));
-        WebElement sortbyFilter = driver.findElement(By.xpath("//*[@id=\"a-autoid-0-announce\"]/span[1]"));
-        sortbyFilter.click();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"s-result-sort-select_2\"]")));
-        WebElement sortbyPriceHighToLow = driver.findElement(By.xpath("//*[@id=\"s-result-sort-select_2\"]"));
-        sortbyPriceHighToLow.click();
-        // Second Search Result
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"search\"]/div[1]/div[1]/div/span[3]/div[2]/div[3]")));
-        WebElement searchItem = driver.findElement(By.xpath("//*[@id=\"search\"]/div[1]/div[1]/div/span[3]/div[2]/div[3]"));
-        searchItem.click();
-        JavascriptExecutor js = (JavascriptExecutor)driver;
-        ArrayList<String> all = new ArrayList<String>(driver.getWindowHandles());
-        driver.switchTo().window(all.get(1));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"feature-bullets\"]/h1")));
-        System.out.println(driver.findElement(By.xpath("//*[@id=\"feature-bullets\"]/ul")).getText());
-        assertEquals("About this item", driver.findElement(By.xpath("//*[@id=\"feature-bullets\"]/h1")).getText());
-    }
+        // Step 3. Scroll own and then Click on the TV, Appliances and Electronics link under Shop by Department section.
+        BurgerMenu burgerMenu = new BurgerMenu(driver);
+        burgerMenu.clickOnDepartment("TV, Appliances and Electronics");
 
-    private WebElement getElement(String locator) {
-        return driver.findElement(By.xpath( "//*[@id=\"nav-hamburger-menu\"]"));
+        // Step 4. Then click on Televisions under Tv, Audio & Cameras sub section.
+        burgerMenu.clickOnSubsection("Televisions");
+
+        // Step 5. Scroll down and filter the results by Brand ‘Samsung’.
+        burgerMenu.clickOnBrand("Samsung");
+
+        // Step 6. Sort the Samsung results with price High to Low.
+        FilterOptions filterMenu = new FilterOptions(driver);
+        filterMenu.ClickOnFilter("Price: High to Low");
+
+        // Step 7. Click on the second highest priced item (whatever that maybe at the time of automating).
+        // Step 8. Switch the Window
+        SearchResults resultsPage = new SearchResults(driver);
+        resultsPage.clickOnProduct(2);
+
+        // Step 9. Assert that “About this item” section is present and log this section text to console/report.
+        ProductDetail productDetail = new ProductDetail(driver);
+        assertEquals("About this item", productDetail.getAboutLabel());
+        System.out.println(productDetail.aboutThisItemText());
+
     }
 
     @AfterAll
     public static void afterAllTestMethods() {
-        System.out.println("Invoked once after all test methods");
+        // Invoked once after all test methods"
         driver.close();
         driver.quit();
     }
 }
-
-
