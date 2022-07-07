@@ -52,8 +52,12 @@ Go to the project directory in IntelliJ
 ```
  Voila - Test Passes !
 
+## Running in docker
+[Click here to read on running in Docker](./docs/docker.md)
 
- 
+## Running in selenium Grid
+[Click here to read on running in selenium grid Docker](./docs/selenium-grid-docker.md)
+
  *Happy coding!*
 
 
